@@ -14,10 +14,12 @@ from docx import Document
 from pathlib import Path
 from joblib import load
 
-modelo_path = load('app/modelo_aderencia_candidatos.joblib')
-model = modelo_path['model']
-preprocessor = modelo_path['preprocessor']
-smote = modelo_path['smote']
+
+try:
+    modelo = joblib.load("app/modelo_aderencia_candidatos.joblib")
+except Exception as e:
+    st.error(f"Erro ao carregar modelo: {str(e)}")
+    st.stop()
 
 VAGAS_PATH = "app/db/vagas_tecnologia.csv"
 # Carregar modelo de NLP
@@ -226,7 +228,7 @@ def classificar_candidato_para_vaga(candidato_dict, vaga_dict, modelo):
     processed_data = modelo['preprocessor'].transform(dados_previsao)
     
     # Fazer previsão
-    classifier = modelo['classifier']
+    classifier = modelo['model']
     aderente = classifier.predict(processed_data)[0]
     probabilidade = classifier.predict_proba(processed_data)[0][1]
     
@@ -292,8 +294,7 @@ uploaded_candidatos = st.sidebar.file_uploader(
     type=["csv", "pdf", "docx"],
     accept_multiple_files=True
 )
-# CARREGAR DADOS FIXOS
-modelo_path = joblib.load("app/modelo_aderencia_candidatos.joblib")
+
 vagas_df = pd.read_csv(VAGAS_PATH)
 
 # VERIFICAÇÃO DOS ARQUIVOS ESSENCIAIS
@@ -312,7 +313,7 @@ candidatos_df = pd.DataFrame()
 
 if uploaded_candidatos:
     try:
-        modelo = joblib.load(modelo_path)
+        modelo = joblib.load(modelo)
         
         # Carregar vagas primeiro
         VAGAS_PATH = "app/db/vagas_tecnologia.csv"
