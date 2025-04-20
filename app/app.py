@@ -313,13 +313,9 @@ candidatos_df = pd.DataFrame()
 
 if uploaded_candidatos:
     try:
-        modelo = joblib.load(modelo)
-        
-        # Carregar vagas primeiro
+            # Carregar vagas primeiro
         VAGAS_PATH = "app/db/vagas_tecnologia.csv"
-
-
-        
+       
         # Processar candidatos
         csv_files = [f for f in uploaded_candidatos if f.name.endswith('.csv')]
         if csv_files:
