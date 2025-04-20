@@ -740,7 +740,7 @@ if uploaded_candidatos:
                 st.rerun()
 
 else:
-    st.warning("Por favor, carregue os arquivos CSV de candidatos, vagas e o modelo treinado para iniciar a análise.")
+    st.warning("Por favor, carregue seu currículo individual em pdf ou um banco de dados em csv de candidatos.")
     
     # Mostrar informações sobre o formato esperado dos arquivos
     with st.expander("Informações sobre o formato dos arquivos"):
