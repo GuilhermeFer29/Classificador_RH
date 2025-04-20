@@ -19,12 +19,13 @@ nlp = spacy.load("pt_core_news_sm")
 
 # Funções de processamento de arquivos
 def extract_text_from_pdf(file):
-    text = extract_text(BytesIO(file.read()))
-    # Remover caracteres especiais
-    text = re.sub(r'[^\w\sáàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]', '', text)
-    # Normalizar espaços
-    text = re.sub(r'\s+', ' ', text)
-    return text.strip()
+    try:
+        # Garantir que o arquivo está em bytes
+        file_bytes = file.getvalue()
+        return extract_text(BytesIO(file_bytes))
+    except Exception as e:
+        st.error(f"Erro ao ler PDF: {str(e)}")
+        return ""
 
 def extract_text_from_docx(file):
     doc = Document(BytesIO(file.read()))
@@ -316,20 +317,24 @@ if uploaded_candidatos:
         else:
             candidatos = []
             for file in uploaded_candidatos:
-                if file.name.endswith('.pdf'):
-                    text = extract_text_from_pdf(file)
-                elif file.name.endswith('.docx'):
-                    text = extract_text_from_docx(file)
-                else:
+                try:
+                    if file.name.endswith('.pdf'):
+                        text = extract_text_from_pdf(file)
+                    elif file.name.endswith('.docx'):
+                        text = extract_text_from_docx(file)
+                    else:
+                        continue
+                    if not text:
+                        continue
+                    parsed = parse_resume(text)
+                    parsed['Nome'] = parsed['Nome'] or file.name.replace('.pdf', '').replace('.docx', '').title()
+                    parsed['ID'] = len(candidatos) + 1
+                    candidatos.append(parsed)
+                except Exception as e:
+                    st.error(f"Erro ao processar o arquivo {file.name}: {str(e)}")
                     continue
-                
-                parsed = parse_resume(text)
-                parsed['Nome'] = parsed['Nome'] or file.name.replace('.pdf', '').replace('.docx', '').title()
-                parsed['ID'] = len(candidatos) + 1
-                candidatos.append(parsed)
-            
             candidatos_df = pd.DataFrame(candidatos)
-            
+                    
             # Garantir colunas obrigatórias
             required_columns = ['Idade', 'Nivel_Formacao', 'Soft_Skills', 'Pretensao_Salarial',
                               'Habilidades_Tecnicas', 'Formacao', 'Anos_Experiencia', 'Nome']
