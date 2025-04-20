@@ -626,7 +626,7 @@ if uploaded_candidatos:
                     st.write(f"**Nível:** {rec['nivel']}")
                     st.write(f"**Local:** {rec['cidade']}")
                 with col2:
-                    st.write(f"**Faixa Salarial:** R${rec['salario_min']} - R${rec['salario_max']}")
+                    st.write(f"**Faixa Salarial:** R$: {rec['salario_min']} - R$:{rec['salario_max']}")
                 with col3:
                     st.write(f"**Match:** {rec['probabilidade']:.2%}")
                     
