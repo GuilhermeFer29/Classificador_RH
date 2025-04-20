@@ -283,7 +283,7 @@ uploaded_candidatos = st.sidebar.file_uploader(
 uploaded_vagas = st.sidebar.file_uploader("Carregar CSV de Vagas", type=["csv"])
 
 # Remova o upload do modelo e adicione verificação de arquivo
-modelo_path = "modelo_aderencia_candidatos.joblib"
+modelo_path = "app/modelo_aderencia_candidatos.joblib"
 
 if not Path(modelo_path).exists():
     st.sidebar.error("Modelo não encontrado! Certifique-se que o arquivo modelo_aderencia_candidatos.joblib está na pasta correta.")
