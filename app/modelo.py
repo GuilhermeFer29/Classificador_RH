@@ -3,19 +3,18 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
 from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline as ImbPipeline   # SMOTE para balanceamento
+from imblearn.pipeline import Pipeline   # SMOTE para balanceamento
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 from joblib import dump
 
 # Carregar os dados
-candidatos_csv = pd.read_csv('app/db/candidatos_tecnologia.csv')
-vagas_csv = pd.read_csv('app/db/vagas_tecnologia.csv')
+candidatos_csv = pd.read_csv('db/candidatos_tecnologia.csv')
+vagas_csv = pd.read_csv('db/vagas_tecnologia.csv')
 
 # Funções de comparação de habilidades, experiência, salário e área de formação
 def calcular_match_habilidades(habilidades_candidato, requisitos_vaga):
@@ -138,7 +137,7 @@ preprocessor = ColumnTransformer(
 # Criando o modelo
 model = Pipeline(steps=[
     ('preprocessor', preprocessor),
-    ('smote', SMOTE),
+    ('smote', SMOTE(random_state=42)),
     ('classifier', RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42))
 ])
 
