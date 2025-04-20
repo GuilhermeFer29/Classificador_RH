@@ -287,7 +287,7 @@ modelo_path = joblib.load("app/modelo_aderencia_candidatos.joblib")
 vagas_df = pd.read_csv(VAGAS_PATH)
 
 # VERIFICAÇÃO DOS ARQUIVOS ESSENCIAIS
-if not Path(modelo_path).exists():
+if not Path("app/modelo_aderencia_candidatos.joblib").exists():
     st.error("Modelo não encontrado! Certifique-se que o arquivo 'modelo_aderencia_candidatos.joblib' está na pasta do projeto.")
     st.stop()
 
