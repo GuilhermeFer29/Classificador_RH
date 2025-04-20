@@ -12,6 +12,12 @@ from pathlib import Path
 from io import BytesIO
 from docx import Document
 from pathlib import Path
+from joblib import load
+
+modelo_path = load('app/modelo_aderencia_candidatos.joblib')
+model = modelo_path['model']
+preprocessor = modelo_path['preprocessor']
+smote = modelo_path['smote']
 
 VAGAS_PATH = "app/db/vagas_tecnologia.csv"
 # Carregar modelo de NLP
@@ -184,7 +190,7 @@ def classificar_candidato_para_vaga(candidato_dict, vaga_dict, modelo):
     Args:
         candidato_dict: Dicionário com dados do candidato
         vaga_dict: Dicionário com dados da vaga
-        modelo: Modelo treinado para classificação
+        modelo: Dicionário com componentes do modelo treinado
         
     Returns:
         dict: Resultado da classificação com score e probabilidade
@@ -216,11 +222,15 @@ def classificar_candidato_para_vaga(candidato_dict, vaga_dict, modelo):
         'Match_Area': match_area
     }])
     
-    # Fazer previsão
-    aderente = modelo.predict(dados_previsao)[0]
-    probabilidade = modelo.predict_proba(dados_previsao)[0][1]  # Probabilidade da classe positiva
+    # Aplicar pré-processamento
+    processed_data = modelo['preprocessor'].transform(dados_previsao)
     
-    # Calcular score composto (similar ao usado no treinamento)
+    # Fazer previsão
+    classifier = modelo['classifier']
+    aderente = classifier.predict(processed_data)[0]
+    probabilidade = classifier.predict_proba(processed_data)[0][1]
+    
+    # Calcular score composto
     score_composto = (
         match_habilidades * 0.4 + 
         match_soft_skills * 0.15 + 
@@ -229,7 +239,7 @@ def classificar_candidato_para_vaga(candidato_dict, vaga_dict, modelo):
         match_area * 0.1
     )
     
-    # Calcular métricas detalhadas para explicabilidade
+    # Detalhes para explicabilidade
     detalhes_match = {
         'Match_Habilidades_Tecnicas': {
             'score': match_habilidades,
@@ -264,7 +274,6 @@ def classificar_candidato_para_vaga(candidato_dict, vaga_dict, modelo):
         'score_composto': float(score_composto),
         'detalhes_match': detalhes_match
     }
-
 # Interface Streamlit modificada
 st.set_page_config(page_title="Sistema de Classificação de Candidatos", layout="wide")
 

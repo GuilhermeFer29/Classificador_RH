@@ -11,6 +11,7 @@ from imblearn.pipeline import Pipeline as ImbPipeline   # SMOTE para balanceamen
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
+from joblib import dump
 
 # Carregar os dados
 candidatos_csv = pd.read_csv('app/db/candidatos_tecnologia.csv')
@@ -135,9 +136,9 @@ preprocessor = ColumnTransformer(
     ])
 
 # Criando o modelo
-model = ImbPipeline(steps=[
+model = Pipeline(steps=[
     ('preprocessor', preprocessor),
-    ('smote', SMOTE(random_state=42)),  # Aqui o SMOTE é aplicado separadamente
+    ('smote', SMOTE),
     ('classifier', RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42))
 ])
 
@@ -161,3 +162,8 @@ print(f"F1 Score: {f1 :.2f}")
 
 # Relatório detalhado
 print(classification_report(y_test, y_pred))
+
+dump({'model': model.named_steps['classifier'],
+      'preprocessor': model.named_steps['preprocessor'],
+      'smote': model.named_steps['smote']}, 
+     'modelo_aderencia_candidatos.joblib')
