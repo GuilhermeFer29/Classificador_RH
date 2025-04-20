@@ -282,9 +282,12 @@ uploaded_candidatos = st.sidebar.file_uploader(
     type=["csv", "pdf", "docx"],
     accept_multiple_files=True
 )
+# CARREGAR DADOS FIXOS
+modelo_path = joblib.load("app/modelo_aderencia_candidatos.joblib")
+vagas_df = pd.read_csv(VAGAS_PATH)
 
 # VERIFICAÇÃO DOS ARQUIVOS ESSENCIAIS
-if not Path("modelo_aderencia_candidatos.joblib").exists():
+if not Path(modelo_path).exists():
     st.error("Modelo não encontrado! Certifique-se que o arquivo 'modelo_aderencia_candidatos.joblib' está na pasta do projeto.")
     st.stop()
 
@@ -292,13 +295,6 @@ if not Path(VAGAS_PATH).exists():
     st.error("Arquivo de vagas não encontrado! Certifique-se que o arquivo 'vagas.csv' está na pasta do projeto.")
     st.stop()
 
-# CARREGAR DADOS FIXOS
-modelo_path = joblib.load("app/modelo_aderencia_candidatos.joblib")
-vagas_df = pd.read_csv(VAGAS_PATH)
-
-if not Path(modelo_path).exists():
-    st.sidebar.error("Modelo não encontrado! Certifique-se que o arquivo modelo_aderencia_candidatos.joblib está na pasta correta.")
-    st.stop()
 
 # Processar arquivos carregados
 candidatos_df = pd.DataFrame()
