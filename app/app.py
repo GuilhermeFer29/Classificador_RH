@@ -11,7 +11,9 @@ from spacy.matcher import Matcher
 from pathlib import Path
 from io import BytesIO
 from docx import Document
+from pathlib import Path
 
+VAGAS_PATH = "app/db/vagas_tecnologia.csv"
 # Carregar modelo de NLP
 nlp = spacy.load("pt_core_news_sm")
 
@@ -265,10 +267,11 @@ def classificar_candidato_para_vaga(candidato_dict, vaga_dict, modelo):
 # Interface Streamlit modificada
 st.set_page_config(page_title="Sistema de Classificação de Candidatos", layout="wide")
 
-st.title("Sistema de Classificação de Candidatos para Vagas de Tecnologia")
+st.title("Analisador Automático de Currículos")
+
 st.write("""
-Este sistema utiliza machine learning para classificar candidatos de acordo com a aderência às vagas disponíveis.
-Carregue os dados dos candidatos (CSV, PDF ou DOCX) e vagas, e selecione um candidato e vaga para análise.
+Sistema inteligente para análise de currículos contra vagas pré-cadastradas.
+Carregue os currículos (PDF ou DOCX) para ver a compatibilidade com nossas vagas.
 """)
 
 # Sidebar para carregar arquivos
@@ -280,10 +283,18 @@ uploaded_candidatos = st.sidebar.file_uploader(
     accept_multiple_files=True
 )
 
-uploaded_vagas = st.sidebar.file_uploader("Carregar CSV de Vagas", type=["csv"])
+# VERIFICAÇÃO DOS ARQUIVOS ESSENCIAIS
+if not Path("modelo_aderencia_candidatos.joblib").exists():
+    st.error("Modelo não encontrado! Certifique-se que o arquivo 'modelo_aderencia_candidatos.joblib' está na pasta do projeto.")
+    st.stop()
 
-# Remova o upload do modelo e adicione verificação de arquivo
-modelo_path = "app/modelo_aderencia_candidatos.joblib"
+if not Path(VAGAS_PATH).exists():
+    st.error("Arquivo de vagas não encontrado! Certifique-se que o arquivo 'vagas.csv' está na pasta do projeto.")
+    st.stop()
+
+# CARREGAR DADOS FIXOS
+modelo_path = joblib.load("app/modelo_aderencia_candidatos.joblib")
+vagas_df = pd.read_csv(VAGAS_PATH)
 
 if not Path(modelo_path).exists():
     st.sidebar.error("Modelo não encontrado! Certifique-se que o arquivo modelo_aderencia_candidatos.joblib está na pasta correta.")
@@ -293,12 +304,14 @@ if not Path(modelo_path).exists():
 candidatos_df = pd.DataFrame()
 
 
-if uploaded_candidatos and uploaded_vagas:
+if uploaded_candidatos:
     try:
         modelo = joblib.load(modelo_path)
         
         # Carregar vagas primeiro
-        vagas_df = pd.read_csv(uploaded_vagas)
+        VAGAS_PATH = "app/db/vagas_tecnologia.csv"
+
+
         
         # Processar candidatos
         csv_files = [f for f in uploaded_candidatos if f.name.endswith('.csv')]
@@ -739,18 +752,6 @@ else:
         ### Formatos Aceitos para Candidatos:
         - **CSV**: Com as colunas especificadas anteriormente
         - **PDF/DOCX**: Currículos em formato padrão com informações profissionais
-        
-        ### Formato do CSV de Vagas
-        O arquivo deve conter as seguintes colunas:
-        - ID: Identificador único da vaga
-        - Titulo: Título da vaga
-        - Empresa: Nome da empresa
-        - Area: Área de atuação
-        - Nivel: Nível da vaga (Júnior, Pleno, etc.)
-        - Requisitos: Lista de requisitos separados por vírgula
-        - Salario_Min: Valor mínimo da faixa salarial
-        - Salario_Max: Valor máximo da faixa salarial
-        - Experiencia_Min_Anos: Experiência mínima requerida em anos
         """)
         
         st.info("O sistema utiliza um modelo treinado (formato .joblib) para realizar as classificações.")
