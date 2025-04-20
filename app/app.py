@@ -14,7 +14,7 @@ from docx import Document
 from pathlib import Path
 from joblib import load
 
-modelo_path = load('modelo_aderencia_candidatos.joblib')
+modelo_path = load('app/modelo_aderencia_candidatos.joblib')
 model = modelo_path['model']
 preprocessor = modelo_path['preprocessor']
 smote = modelo_path['smote']
@@ -293,12 +293,12 @@ uploaded_candidatos = st.sidebar.file_uploader(
     accept_multiple_files=True
 )
 # CARREGAR DADOS FIXOS
-modelo_path = joblib.load("modelo_aderencia_candidatos.joblib")
+modelo_path = joblib.load("app/modelo_aderencia_candidatos.joblib")
 vagas_df = pd.read_csv(VAGAS_PATH)
 
 # VERIFICAÇÃO DOS ARQUIVOS ESSENCIAIS
 if not Path("app/modelo_aderencia_candidatos.joblib").exists():
-    st.error("Modelo não encontrado! Certifique-se que o arquivo 'modelo_aderencia_candidatos.joblib' está na pasta do projeto.")
+    st.error("Modelo não encontrado! Certifique-se que o arquivo '/home/guilherme/Documentos/GitHub/Classificador_RH/app/modelo_aderencia_candidatos.joblib' está na pasta do projeto.")
     st.stop()
 
 if not Path(VAGAS_PATH).exists():
